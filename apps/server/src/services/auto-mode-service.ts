@@ -68,6 +68,7 @@ import {
   filterClaudeMdFromContext,
   getMCPServersFromSettings,
   getPromptCustomization,
+  getActiveClaudeApiProfile,
 } from '../lib/settings-helpers.js';
 import { getNotificationService } from './notification-service.js';
 
@@ -2268,6 +2269,13 @@ Format your response as a structured markdown document.`;
         thinkingLevel: analysisThinkingLevel,
       });
 
+      // Get active Claude API profile for alternative endpoint configuration
+      const { profile: claudeApiProfile, credentials } = await getActiveClaudeApiProfile(
+        this.settingsService,
+        '[AutoMode]',
+        projectPath
+      );
+
       const options: ExecuteOptions = {
         prompt,
         model: sdkOptions.model ?? analysisModel,
@@ -2277,6 +2285,8 @@ Format your response as a structured markdown document.`;
         abortController,
         settingSources: sdkOptions.settingSources,
         thinkingLevel: analysisThinkingLevel, // Pass thinking level
+        claudeApiProfile, // Pass active Claude API profile for alternative endpoint configuration
+        credentials, // Pass credentials for resolving 'credentials' apiKeySource
       };
 
       const stream = provider.executeQuery(options);
@@ -3251,6 +3261,13 @@ This mock response was generated because AUTOMAKER_MOCK_AGENT=true was set.
       );
     }
 
+    // Get active Claude API profile for alternative endpoint configuration
+    const { profile: claudeApiProfile, credentials } = await getActiveClaudeApiProfile(
+      this.settingsService,
+      '[AutoMode]',
+      finalProjectPath
+    );
+
     const executeOptions: ExecuteOptions = {
       prompt: promptContent,
       model: bareModel,
@@ -3262,6 +3279,8 @@ This mock response was generated because AUTOMAKER_MOCK_AGENT=true was set.
       settingSources: sdkOptions.settingSources,
       mcpServers: Object.keys(mcpServers).length > 0 ? mcpServers : undefined, // Pass MCP servers configuration
       thinkingLevel: options?.thinkingLevel, // Pass thinking level for extended thinking
+      claudeApiProfile, // Pass active Claude API profile for alternative endpoint configuration
+      credentials, // Pass credentials for resolving 'credentials' apiKeySource
     };
 
     // Execute via provider
@@ -3564,6 +3583,8 @@ After generating the revised spec, output:
                           allowedTools: allowedTools,
                           abortController,
                           mcpServers: Object.keys(mcpServers).length > 0 ? mcpServers : undefined,
+                          claudeApiProfile, // Pass active Claude API profile for alternative endpoint configuration
+                          credentials, // Pass credentials for resolving 'credentials' apiKeySource
                         });
 
                         let revisionText = '';
@@ -3709,6 +3730,8 @@ After generating the revised spec, output:
                       allowedTools: allowedTools,
                       abortController,
                       mcpServers: Object.keys(mcpServers).length > 0 ? mcpServers : undefined,
+                      claudeApiProfile, // Pass active Claude API profile for alternative endpoint configuration
+                      credentials, // Pass credentials for resolving 'credentials' apiKeySource
                     });
 
                     let taskOutput = '';
@@ -3803,6 +3826,8 @@ After generating the revised spec, output:
                     allowedTools: allowedTools,
                     abortController,
                     mcpServers: Object.keys(mcpServers).length > 0 ? mcpServers : undefined,
+                    claudeApiProfile, // Pass active Claude API profile for alternative endpoint configuration
+                    credentials, // Pass credentials for resolving 'credentials' apiKeySource
                   });
 
                   for await (const msg of continuationStream) {

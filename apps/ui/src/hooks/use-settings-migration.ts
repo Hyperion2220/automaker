@@ -208,6 +208,10 @@ export function parseLocalStorageSettings(): Partial<GlobalSettings> | null {
         worktreePanelCollapsed === 'true' || (state.worktreePanelCollapsed as boolean),
       lastProjectDir: lastProjectDir || (state.lastProjectDir as string),
       recentFolders: recentFolders ? JSON.parse(recentFolders) : (state.recentFolders as string[]),
+      // Claude API Profiles
+      claudeApiProfiles: (state.claudeApiProfiles as GlobalSettings['claudeApiProfiles']) ?? [],
+      activeClaudeApiProfileId:
+        (state.activeClaudeApiProfileId as GlobalSettings['activeClaudeApiProfileId']) ?? null,
     };
   } catch (error) {
     logger.error('Failed to parse localStorage settings:', error);
@@ -326,6 +330,20 @@ export function mergeSettings(
   // Preserve current project ID from localStorage if server doesn't have one
   if (!serverSettings.currentProjectId && localSettings.currentProjectId) {
     merged.currentProjectId = localSettings.currentProjectId;
+  }
+
+  // Claude API Profiles - preserve from localStorage if server is empty
+  if (
+    (!serverSettings.claudeApiProfiles || serverSettings.claudeApiProfiles.length === 0) &&
+    localSettings.claudeApiProfiles &&
+    localSettings.claudeApiProfiles.length > 0
+  ) {
+    merged.claudeApiProfiles = localSettings.claudeApiProfiles;
+  }
+
+  // Active Claude API Profile ID - preserve from localStorage if server doesn't have one
+  if (!serverSettings.activeClaudeApiProfileId && localSettings.activeClaudeApiProfileId) {
+    merged.activeClaudeApiProfileId = localSettings.activeClaudeApiProfileId;
   }
 
   return merged;
@@ -700,6 +718,8 @@ export function hydrateStoreFromSettings(settings: GlobalSettings): void {
     mcpServers: settings.mcpServers ?? [],
     promptCustomization: settings.promptCustomization ?? {},
     eventHooks: settings.eventHooks ?? [],
+    claudeApiProfiles: settings.claudeApiProfiles ?? [],
+    activeClaudeApiProfileId: settings.activeClaudeApiProfileId ?? null,
     projects,
     currentProject,
     trashedProjects: settings.trashedProjects ?? [],
@@ -776,6 +796,8 @@ function buildSettingsUpdateFromStore(): Record<string, unknown> {
     mcpServers: state.mcpServers,
     promptCustomization: state.promptCustomization,
     eventHooks: state.eventHooks,
+    claudeApiProfiles: state.claudeApiProfiles,
+    activeClaudeApiProfileId: state.activeClaudeApiProfileId,
     projects: state.projects,
     trashedProjects: state.trashedProjects,
     currentProjectId: state.currentProject?.id ?? null,

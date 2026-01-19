@@ -74,6 +74,8 @@ const SETTINGS_FIELDS_TO_SYNC = [
   'defaultTerminalId',
   'promptCustomization',
   'eventHooks',
+  'claudeApiProfiles',
+  'activeClaudeApiProfileId',
   'projects',
   'trashedProjects',
   'currentProjectId', // ID of currently open project
@@ -669,6 +671,8 @@ export async function refreshSettingsFromServer(): Promise<boolean> {
       defaultEditorCommand: serverSettings.defaultEditorCommand ?? null,
       defaultTerminalId: serverSettings.defaultTerminalId ?? null,
       promptCustomization: serverSettings.promptCustomization ?? {},
+      claudeApiProfiles: serverSettings.claudeApiProfiles ?? [],
+      activeClaudeApiProfileId: serverSettings.activeClaudeApiProfileId ?? null,
       projects: serverSettings.projects,
       trashedProjects: serverSettings.trashedProjects,
       projectHistory: serverSettings.projectHistory,
